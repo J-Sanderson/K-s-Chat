@@ -10,16 +10,24 @@ var message = document.getElementById('message'),
 
 //emit events
 btn.addEventListener('click', function(e) {
+  sendMessage(e);
+});
+
+message.addEventListener('keypress', function(e){
+  if (e.key === 'Enter') {
+    sendMessage(e);
+  } else {
+    socket.emit('typing', handle.value);
+  }
+})
+
+function sendMessage(e) {
   e.preventDefault();
   socket.emit('chat', {
     message: message.value,
     handle: handle.value
   });
-});
-
-message.addEventListener('keypress', function(){
-  socket.emit('typing', handle.value);
-})
+}
 
 //listen for events
 socket.on('chat', function(data) {
