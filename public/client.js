@@ -3,12 +3,19 @@ var socket = io.connect('https://foam-airboat.glitch.me/');
 
 //query dom
 var message = document.getElementById('message'),
+    enter = document.getElementById('enter'),
     handle = document.getElementById('handle'),
     btn = document.getElementById('send'),
     output = document.getElementById('output'),
     feedback = document.getElementById('feedback');
 
 //emit events
+enter.addEventListener('click', function(e) {
+  document.getElementById('entry').style.display = 'none';
+  handle.value = document.getElementById('name').value;
+  socket.emit('newUser', handle.value);
+})
+
 btn.addEventListener('click', function(e) {
   sendMessage(e);
 });
@@ -23,10 +30,12 @@ message.addEventListener('keypress', function(e){
 
 function sendMessage(e) {
   e.preventDefault();
-  socket.emit('chat', {
-    message: message.value,
-    handle: handle.value
-  });
+  if (message.value) {
+    socket.emit('chat', {
+      message: message.value,
+      handle: handle.value
+    });
+  }
 }
 
 //listen for events
@@ -39,3 +48,7 @@ socket.on('chat', function(data) {
 socket.on('typing', function(data) {
    feedback.innerHTML = '<p>' + data + ' is typing a message...</p>';
 });
+
+socket.on('newUser', function(data) {
+  output.innerHTML += '<p>' + data + ' has entered</p>';
+})
