@@ -36,7 +36,6 @@ io.on('connection', function(socket) {
       id: socket.id,
       handle: data
     });
-    console.log(users);
     io.sockets.emit('newUser', data);
   });
   
