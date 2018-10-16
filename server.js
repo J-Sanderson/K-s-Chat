@@ -31,7 +31,24 @@ io.on('connection', function(socket) {
   });
   
   socket.on('newUser', function(data) {
+    console.log("new user " + data + " on " + socket.id);
+    users.push({
+      id: socket.id,
+      handle: data
+    });
+    console.log(users);
     io.sockets.emit('newUser', data);
   });
   
+  socket.on('nameChange', function(data){
+    console.log(socket.id + ' changed name to ' + data);
+    var toChange = users.findIndex(function(user) { return user.id === socket.id });
+    var oldName = users[toChange].handle;
+    users[toChange].handle = data;
+    io.sockets.emit('nameChange', {oldName: oldName, newName: data});
+  });
+  
 });
+
+//current users - populate as people connect
+var users = [];
