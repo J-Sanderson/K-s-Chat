@@ -5,6 +5,7 @@ var socket = io.connect('https://foam-airboat.glitch.me/');
 var message = document.getElementById('message'),
     enter = document.getElementById('enter'),
     handle = document.getElementById('handle'),
+    handleStore,
     btn = document.getElementById('send'),
     output = document.getElementById('output'),
     feedback = document.getElementById('feedback'),
@@ -14,6 +15,7 @@ var message = document.getElementById('message'),
 enter.addEventListener('click', function(e) {
   document.getElementById('entry').style.display = 'none';
   handle.value = document.getElementById('name').value;
+  handleStore = handle.value;
   socket.emit('newUser', handle.value);
 })
 
@@ -23,6 +25,9 @@ btn.addEventListener('click', function(e) {
 
 message.addEventListener('keypress', function(e){
   if (e.key === 'Enter') {
+    if (handle.value !== handleStore) {
+      changeHandle();
+    }
     sendMessage(e);
   } else {
     socket.emit('typing', handle.value);
@@ -31,7 +36,7 @@ message.addEventListener('keypress', function(e){
 
 handle.addEventListener('keypress', function(e){
   if(e.key === 'Enter') {
-    socket.emit('nameChange', handle.value);
+    changeHandle();
   }
 });
 
@@ -44,6 +49,16 @@ function sendMessage(e) {
     });
   }
 }
+
+function changeHandle() {
+  socket.emit('nameChange', {oldName: handleStore, newName: handle.value});
+  handleStore = handle.value;
+  console.log(handleStore);
+}
+
+window.addEventListener('beforeunload', function(e) {
+  socket.emit('userLeaves', handle.value);
+});
 
 //listen for events
 socket.on('chat', function(data) {
@@ -66,4 +81,10 @@ socket.on('nameChange', function(data) {
   var toChange = document.getElementById(data.oldName);
   toChange.innerHTML = data.newName;
   toChange.id = data.newName;
+});
+
+socket.on('userLeaves', function(data) {
+  output.innerHTML += '<p class="info">' + data + ' has left</p>';
+  var toRemove = document.getElementById(data);
+  toRemove.parentNode.removeChild(toRemove);
 });
