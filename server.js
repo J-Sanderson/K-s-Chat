@@ -32,19 +32,24 @@ io.on('connection', function(socket) {
   
   socket.on('newUser', function(data) {
     console.log("new user " + data + " on " + socket.id);
-    users.push({
-      id: socket.id,
-      handle: data
-    });
+    users.push(data);
     io.sockets.emit('newUser', data);
   });
   
   socket.on('nameChange', function(data){
-    console.log(socket.id + ' changed name to ' + data);
-    var toChange = users.findIndex(function(user) { return user.id === socket.id });
-    var oldName = users[toChange].handle;
-    users[toChange].handle = data;
-    io.sockets.emit('nameChange', {oldName: oldName, newName: data});
+    console.log(data.oldName + ' changed name to ' + data.newName);
+    var toChange = users.findIndex(function(user) { return user === data.oldName });
+    users[toChange] = data.newName;
+    io.sockets.emit('nameChange', data);
+  });
+  
+  socket.on('userLeaves', function(data){
+    console.log(data + ' has left');
+    var toRemove = users.findIndex(function(user) { return user === data });
+    if (toRemove >= 0) {
+      users.splice(toRemove, 1);
+      socket.broadcast.emit('userLeaves', data);
+    }
   });
   
 });
