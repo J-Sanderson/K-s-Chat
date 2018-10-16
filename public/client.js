@@ -26,7 +26,13 @@ message.addEventListener('keypress', function(e){
   } else {
     socket.emit('typing', handle.value);
   }
-})
+});
+
+handle.addEventListener('keypress', function(e){
+  if(e.key === 'Enter') {
+    socket.emit('nameChange', handle.value);
+  }
+});
 
 function sendMessage(e) {
   e.preventDefault();
@@ -46,9 +52,13 @@ socket.on('chat', function(data) {
 });
 
 socket.on('typing', function(data) {
-   feedback.innerHTML = '<p>' + data + ' is typing a message...</p>';
+   feedback.innerHTML = '<p class="info">' + data + ' is typing a message...</p>';
 });
 
 socket.on('newUser', function(data) {
-  output.innerHTML += '<p>' + data + ' has entered</p>';
-})
+  output.innerHTML += '<p class="info">' + data + ' has entered</p>';
+});
+
+socket.on('nameChange', function(data) {
+  output.innerHTML += '<p class="info">' + data.oldName + ' is now ' + data.newName + '</p>';
+});
