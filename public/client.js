@@ -7,7 +7,8 @@ var message = document.getElementById('message'),
     handle = document.getElementById('handle'),
     btn = document.getElementById('send'),
     output = document.getElementById('output'),
-    feedback = document.getElementById('feedback');
+    feedback = document.getElementById('feedback'),
+    whosOn = document.getElementById('whos-on');
 
 //emit events
 enter.addEventListener('click', function(e) {
@@ -57,8 +58,12 @@ socket.on('typing', function(data) {
 
 socket.on('newUser', function(data) {
   output.innerHTML += '<p class="info">' + data + ' has entered</p>';
+  whosOn.innerHTML += '<p class="info" id="' + data + '">' + data + '</p>';
 });
 
 socket.on('nameChange', function(data) {
   output.innerHTML += '<p class="info">' + data.oldName + ' is now ' + data.newName + '</p>';
+  var toChange = document.getElementById(data.oldName);
+  toChange.innerHTML = data.newName;
+  toChange.id = data.newName;
 });
